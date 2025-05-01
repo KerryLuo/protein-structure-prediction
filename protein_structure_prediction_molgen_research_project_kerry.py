@@ -100,11 +100,14 @@ for i in range(len(pdb2Darr)):
   print(pdb2Darr[i])
 
 # I need a get_column function to grab columns from the 2D array I made easier
-def get_column(matrix, col_index):
+"""def get_column(matrix, col_index):
     column = []
     for i in range(len(matrix)):
       column.append(matrix[i])
     return column
+"""
+def get_column(matrix, col_index):
+    return [row[col_index] for row in matrix if len(row) > col_index]
 
  # Convert 2D array into dataframe
 def pdb2Darr_to_df(pdb_2D_array):
