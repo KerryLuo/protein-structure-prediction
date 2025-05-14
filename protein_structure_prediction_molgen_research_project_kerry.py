@@ -32,6 +32,23 @@ def create_minifold_model():
     outputs = layers.Dense(3)(x)
     return models.Model(inputs, outputs)
 
+def create_minifold_model():
+    inputs = layers.Input(shape=(None, 20))
+
+    # Project one-hot sequence into higher-dimensional space
+    x = layers.Dense(128, activation='gelu')(inputs)  # GELU is a smoother gradient than RELU (better for complex patterns) but is more computationally expensive. Since the model is pretty small, this doesn't have too much or a downside, which is why i chose to include this
+    x = layers.LayerNormalization()(x)
+
+    # Multi-head attention
+    attention_output = layers.MultiHeadAttention(num_heads=8, key_dim=32)(x, x)  # more heads
+    x = layers.LayerNormalization()(x)
+
+    x = layers.Dense(128, activation='gelu')(x)
+
+    outputs = layers.Dense(3)(x)  # Predict (x, y, z)
+
+    return models.Model(inputs, outputs)
+
 def fetch_pdb_content(pdb_id):
     pdb_id = pdb_id.lower()
     url = f"https://files.rcsb.org/download/{pdb_id}.pdb"
