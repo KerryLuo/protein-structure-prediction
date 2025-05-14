@@ -34,6 +34,7 @@ Although AlphaFold2 is very complex, my project focuses on capturing the basic i
 ### 2. Model Architecture
 - **Input**:  
   - Variable-length one-hot encoded sequence.
+  - This was 
 - **Layers**:
   - Dense layer with 64 units and ReLU activation.
   - Layer Normalization layer.
