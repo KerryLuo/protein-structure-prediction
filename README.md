@@ -1,3 +1,9 @@
+TODO:
+1. add in-depth description of everything the code does
+2. add more training data
+3. test on different protein (not cytochrome c), more like something we did in class like a crispr protein
+
+
 ## **Protein Scructure Prediction w/ Computational Model**
 With the rise in neural networks being used in predicting how proteins will fold, this model attempts to recreate top models such as AlphaFold with lower complexity. 
 
