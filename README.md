@@ -36,11 +36,11 @@ Although AlphaFold2 is very complex, my project focuses on capturing the basic i
   - Downloads the corresponding protein structure (.pdb file) from the RCSB Protein Data Bank.
 - **Cα Coordinate Extraction**:  
   - Parses the PDB file and extracts the x, y, z coordinates of **Cα atoms** (representing the protein backbone).
+I chose to focus on alpha-carbon atoms due to the nature of the model. Since the model is a scaled down version lacking a lot of the things AlphaFold has, I chose to only focus on the protein backbone. Alpha-carbons are the central point in the backbone of every amino acid, so I only extracted their positions. 
 
 ### 2. Model Architecture
 - **Input**:  
   - Variable-length one-hot encoded sequence.
-  - This was 
 - **Layers**:
   - Dense layer with 64 units and ReLU activation.
   - Layer Normalization layer.
