@@ -12,3 +12,12 @@ For my research project, I aim to recreate AlphaFold by creating a model that pr
 
 
 ### Development
+
+
+### Results
+
+
+### Future Steps
+
+
+### Works Cited
