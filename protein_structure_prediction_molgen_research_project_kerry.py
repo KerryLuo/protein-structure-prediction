@@ -4,7 +4,6 @@ import numpy as np
 import pandas as pd
 import requests
 
-# Preprocessing
 def preprocess_fasta(fasta):
     amino_acids = [fasta[i:i+1] for i in range(0, len(fasta))]
     STRINGS = ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'Y']
@@ -17,14 +16,12 @@ def preprocess_fasta(fasta):
         else:
             return None
 
-    # Create a dataframe
     df = pd.DataFrame({'string': STRINGS, 'label': LABELS})
     for i in range(len(amino_acids)):
         amino_acids[i] = get_label_from_string(amino_acids[i], df)
 
     return tf.one_hot(amino_acids, 20)
 
-# Model for variable-length input
 def create_minifold_model():
     inputs = layers.Input(shape=(None, 20))
     x = layers.Dense(64, activation='relu')(inputs)
@@ -35,7 +32,6 @@ def create_minifold_model():
     outputs = layers.Dense(3)(x)
     return models.Model(inputs, outputs)
 
-# Fetch PDB content
 def fetch_pdb_content(pdb_id):
     pdb_id = pdb_id.lower()
     url = f"https://files.rcsb.org/download/{pdb_id}.pdb"
@@ -47,12 +43,10 @@ def fetch_pdb_content(pdb_id):
         print(f"Failed to fetch PDB file {pdb_id}: {e}")
         return None
 
-# Convert PDB to 2D array
 def pdb_to_arr(pdb_text):
     pdb_lines = pdb_text.strip().split('\n')
     return [line.split() for line in pdb_lines if line.startswith("ATOM")]
 
-# Extract Carbon coordinates
 def extract_ca_coordinates(pdb_2d):
     coords = []
     for line in pdb_2d:
@@ -60,14 +54,12 @@ def extract_ca_coordinates(pdb_2d):
             coords.append([float(line[6]), float(line[7]), float(line[8])])
     return coords
 
-# Calculate RMSD
 def calculate_rmsd(pred, true):
     pred, true = np.array(pred), np.array(true)
     min_len = min(len(pred), len(true))
     pred, true = pred[:min_len], true[:min_len]
     return np.sqrt(np.mean((pred - true)**2))
 
-# Plot predicted vs true coordinates
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
@@ -84,6 +76,8 @@ def plot_comparison(pred, true):
     ax.set_title("Predicted vs True Cα Trace")
     plt.show()
 
+###############################################################
+
 # Example
 fasta = "VLSEGEWQLVLHVWAKVEADVAGHGQDILIRLFKSHPETLEKFDRFKHLKTEAEMKASEDLKKHGVTVLTALGAILKKKGHHEAELKPLAQSHATKHKIPIKYLEFISEAIIHVLHSRHPGDFGADAQGAMNKALELFRKDIAAKYKELGYQG"
 
@@ -93,29 +87,23 @@ pdb_txt = fetch_pdb_content(pdb_id)
 pdb_arr = pdb_to_arr(pdb_txt)
 ca_coords = extract_ca_coordinates(pdb_arr)
 
-# Preprocess input
 X = preprocess_fasta(fasta).numpy()
 y = np.array(ca_coords)
 
-# Ensure they match in length
 min_len = min(X.shape[0], y.shape[0])
 X, y = X[:min_len], y[:min_len]
 X = X[None, ...]
 y = y[None, ...]
 
-# Build and train model
 model = create_minifold_model()
 model.compile(optimizer='adam', loss='mse')
 model.fit(X, y, epochs=200, verbose=2)
 
-# Preprocess and predict
 X_test = tf.expand_dims(preprocess_fasta(fasta), axis=0)
 
 predicted_coords = model.predict(X_test)[0]
 
-# Calculate RMSD
 rmsd = calculate_rmsd(predicted_coords, ca_coords)
 print(f"RMSD between prediction and true structure: {rmsd:.3f} Å")
 
-# Plot comparison
 plot_comparison(predicted_coords, ca_coords)
