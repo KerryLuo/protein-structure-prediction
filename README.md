@@ -45,10 +45,9 @@ Although AlphaFold2 is very complex, my project focuses on capturing the basic i
 This architecture captures basic spatial relationships between amino acids using attention, similar in spirit to AlphaFold's mechanism.
 
 ### 3. Training
-- **Optimizer**: Adam.
 - **Loss Function**: Mean Squared Error (MSE).
 - **Training Setup**:
-  - Trained on a single sequence and structure pair (for demonstration purposes).
+  - Trained on multiple sequence-structure pairs. 
   - 200 epochs of training to fit predicted Cα coordinates to true coordinates.
 
 ### 4. Evaluation
@@ -58,7 +57,12 @@ This architecture captures basic spatial relationships between amino acids using
   - Generates a 3D plot comparing the predicted trace against the actual structure, allowing visual inspection of prediction accuracy.
 
 ## Results
+### Minimal Training (for demonstration)
+In the first iteration, for demonstration purposes, the model was trained on just one sequence-structure pair. This resulted in a RMSD value of 11.209 Å. This was unoptimal, as an optimal RMSD value is below 3 Å.
 ![image](https://github.com/user-attachments/assets/5585af08-42c3-4e2a-8a61-63525d9b529a)
+
+### With Training
+
 
 
 ## Future Steps
