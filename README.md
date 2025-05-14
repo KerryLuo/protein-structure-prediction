@@ -15,6 +15,8 @@ AlphaFold’s system works in several stages:
 3. Structure Module: Predicts 3D atomic coordinates based on learned spatial maps and sequence embeddings.
 4. Iterative Refinement: Recycles predictions multiple times to correct initial errors and improve final outputs.
 
+![image](https://github.com/user-attachments/assets/27f5f46c-d66a-44c8-a2b0-d40f0edf04f9)
+
 Although AlphaFold2 is very complex, my project focuses on capturing the basic idea:
 1. Starting from sequence information.
 2. Using attention mechanisms to model residue interactions.
