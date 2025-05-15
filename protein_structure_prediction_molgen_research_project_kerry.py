@@ -8,6 +8,8 @@ import requests
 from os import write
 from rcsbsearchapi import AttributeQuery
 import requests
+from tqdm import tqdm
+from tensorflow.keras.preprocessing.sequence import pad_sequences
 
 def preprocess_fasta(fasta):
     amino_acids = [fasta[i:i+1] for i in range(0, len(fasta))]
@@ -120,27 +122,36 @@ query = AttributeQuery(
     value="Homo sapiens"
 )
 
-# Get the first 1000 results
-sequences = list(query())[0:1000]
+test_split = 200
+sequences = list(query())[0:test_split]
 print(sequences[0:10])
 
 train_data = []
 
-for pdb_id in sequences:
-    fasta_sequence = fetch_sequence(pdb_id)
-    pdb_text = fetch_pdb_content(pdb_id)
-    if fasta_sequence is None or pdb_text is None:
+for pdb_id in tqdm(sequences):
+    try:
+        fasta_sequence = fetch_sequence(pdb_id)
+        pdb_text = fetch_pdb_content(pdb_id)
+
+        if fasta_sequence is None or pdb_text is None:
+            print(f"Skipping {pdb_id}: missing sequence or PDB.")
+            continue
+
+        x = preprocess_fasta(fasta_sequence).numpy()
+        pdb_arr = pdb_to_arr(pdb_text)
+        y = np.array(extract_ca_coordinates(pdb_arr))
+
+        min_len = min(x.shape[0], y.shape[0])
+        x, y = x[:min_len], y[:min_len]
+
+        train_data.append((x, y))
+
+    except Exception as e:
+        print(f"Skipping {pdb_id}: error during processing. ({e})")
         continue
-    x = preprocess_fasta(fasta_sequence).numpy()
-    pdb_arr = pdb_to_arr(pdb_text)
-    y = np.array(extract_ca_coordinates(pdb_arr))
 
-    min_len = min(x.shape[0], y.shape[0])
-    x, y = x[:min_len], y[:min_len]
-    train_data.append((x, y))
-
-inputs = [np.expand_dims(x, axis=0) for x, y in train_data]
-targets = [np.expand_dims(y, axis=0) for x, y in train_data]
+inputs = pad_sequences([x for x, y in train_data], padding="post", dtype="float32")
+targets = pad_sequences([y for x, y in train_data], padding="post", dtype="float32")
 
 model = create_minifold_model()
 model.compile(optimizer='adam', loss='mse')
@@ -148,17 +159,33 @@ model.fit(inputs, targets, epochs=200)
 
 ###################################################################################
 
-test_pdb_id = "3ZOW"
-fasta_sequence = fetch_sequence(test_pdb_id)
-pdb_text = fetch_pdb_content(test_pdb_id)
+validation = list(query())[test_split:test_split + 100]
 
-X_test = tf.expand_dims(preprocess_fasta(fasta_sequence), axis=0)
-pdb_arr = pdb_to_arr(pdb_text)
-ca_coords = np.array(extract_ca_coordinates(pdb_arr))
+RMSD_total = 0
+RMSD_count = 0
 
-predicted_coords = model.predict(X_test)[0]
+for test_pdb_id in validation:
+  try:
+    fasta_sequence = fetch_sequence(test_pdb_id)
+    pdb_text = fetch_pdb_content(test_pdb_id)
 
-rmsd = calculate_rmsd(predicted_coords, ca_coords)
-print(f"RMSD between prediction and true structure for {test_pdb_id}: {rmsd:.3f} Å")
+    X_test = tf.expand_dims(preprocess_fasta(fasta_sequence), axis=0)
+    pdb_arr = pdb_to_arr(pdb_text)
+    ca_coords = np.array(extract_ca_coordinates(pdb_arr))
 
-plot_comparison(predicted_coords, ca_coords)
+    predicted_coords = model.predict(X_test)[0]
+
+    rmsd = calculate_rmsd(predicted_coords, ca_coords)
+
+    print(f"RMSD between prediction and true structure for {test_pdb_id}: {rmsd:.3f} Å")
+    plot_comparison(predicted_coords, ca_coords)
+
+    RMSD_total += rmsd
+    RMSD_count += 1
+  except:
+    pass
+
+print("Average RMSD:", RMSD_total/RMSD_count)
+# print(f"RMSD between prediction and true structure for {test_pdb_id}: {rmsd:.3f} Å")
+
+# plot_comparison(predicted_coords, ca_coords)
