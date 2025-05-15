@@ -1,4 +1,4 @@
-## **Protein Scructure Prediction w/ Computational Model**
+## **MiniFold - Protein Scructure Prediction w/ Computational Model**
 With the rise in neural networks being used in predicting how proteins will fold, this model attempts to recreate top models such as AlphaFold with lower complexity. 
 
 ## Background
