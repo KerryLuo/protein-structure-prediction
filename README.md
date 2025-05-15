@@ -73,6 +73,9 @@ I chose to focus on alpha-carbon atoms due to the nature of the model. Since the
 In the first iteration, for demonstration purposes, the model was trained on just one sequence-structure pair. This resulted in a RMSD value of 11.209 Å. This was unoptimal, as an optimal RMSD value is below 3 Å.
 ![image](https://github.com/user-attachments/assets/5585af08-42c3-4e2a-8a61-63525d9b529a)
 
+After improving the model architecture and keeping the training data and evaluation the same, I got an RMSD of 
+![image](https://github.com/user-attachments/assets/41926027-8559-44e8-9f86-f1db47236eda)
+
 ### Increased Training Data
 
 
