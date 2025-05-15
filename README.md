@@ -76,15 +76,20 @@ Obviously, the results are not ideal. This is to be expected.
 
 ## Future Steps
 There are several areas for improvement in future work. The results with the given work have a lot of room for improvement. While the general structure is there, a lot needs to be added on to properly imitate AlphaFold and accurately predict proteins structures. 
-- Expand Training Data:
+
+Expand Training Data:
   - Increase the size and diversity of the dataset by including more PDB entries from a variety of organisms, not just Homo sapiens.
   - Include longer and more structurally complex proteins to better challenge and train the model.
+
 Model Improvements:
 - Implement a recycling mechanism, where the model's predictions are fed back into itself to refine outputs, mimicking AlphaFold’s iterative approach.
 - Explore transformer-based architectures beyond simple multi-head attention for more powerful spatial learning.
+
 Predict More than Cα:
 - Expand the model to predict side chain atoms or full-atom coordinates, instead of just the alpha-carbon trace, for more realistic structure predictions.
+
 Advanced Loss Functions:
 - Experiment with additional loss functions, such as distance matrix loss, to guide the model towards better global folding.
+
 Benchmarking:
 - Compare the model’s performance against standard datasets used in protein structure prediction (e.g., CASP datasets).
