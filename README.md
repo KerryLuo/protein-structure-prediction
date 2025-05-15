@@ -41,6 +41,7 @@ I chose to focus on alpha-carbon atoms due to the nature of the model. Since the
 ### 2. Model Architecture
 - **Input**:  
   - Variable-length one-hot encoded sequence.
+  - Each sequences has a different length, so the program needs to adapt
 - **Layers**:
   - Dense layer with 64 units and ReLU activation.
   - Layer Normalization layer.
