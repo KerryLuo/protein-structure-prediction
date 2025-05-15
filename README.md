@@ -93,3 +93,17 @@ Advanced Loss Functions:
 
 Benchmarking:
 - Compare the model’s performance against standard datasets used in protein structure prediction (e.g., CASP datasets).
+
+## Resources
+
+Jumper, J., Evans, R., Pritzel, A., et al. (2021). [*Highly accurate protein structure prediction with AlphaFold*](https://doi.org/10.1038/s41586-021-03819-2). *Nature*.
+
+DeepMind. (2021). [*AlphaFold Protein Structure Database*](https://alphafold.ebi.ac.uk/).
+
+RCSB Protein Data Bank. (n.d.). [*PDB - The Single Global Archive for 3D Structural Data of Biological Macromolecules*](https://www.rcsb.org/).
+
+Baek, M., DiMaio, F., Anishchenko, I., et al. (2021). [*Accurate prediction of protein structures and interactions using a three-track neural network*](https://doi.org/10.1126/science.abj8754). *Science*.
+
+Senior, A. W., Evans, R., Jumper, J., et al. (2020). [*Improved protein structure prediction using potentials from deep learning*](https://doi.org/10.1038/s41586-019-1923-7). *Nature*.
+
+
