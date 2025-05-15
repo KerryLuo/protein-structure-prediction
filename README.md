@@ -43,32 +43,17 @@ I chose to focus on alpha-carbon atoms due to the nature of the model. Since the
   - Variable-length one-hot encoded sequence.
   - Each sequences has a different length, so the program needs to adapt
 - **Layers**:
-  - Dense layer with 128 units and GELU activation.
+  - Dense layer with 128 units and GELU activation
     - Projects the one-hot encoded sequence into a higher-dimensional feature space.
     - GELU activation provides a smoother, more natural gradient flow than ReLU, helping the model learn complex patterns.
-  - Layer Normalization layer.
+  - Layer Normalization layer
     - Normalizes features across each input to stabilize and speed up training.
-  - Multi-Head Attention layer (4 heads, key dimension = 16).
-    - Allows each amino acid residue to attend to others, capturing complex relationships (even between distant residues).
-  - Another Layer Normalization layer.
-  - Dense layer with 128 units and ReLU activation.
-  - Final Dense layer that predicts 3D coordinates (x, y, z) for each amino acid residue.
-
-
-- **Multi-Head Attention layer (8 heads, key dimension = 32)**
-  - Allows each amino acid residue to attend to others, capturing complex relationships (even between distant residues).
-  - More heads (8 vs 4) and higher key dimension (32 vs 16) help the model learn richer and more diverse interactions.
-
-- **Layer Normalization layer**
-  - Re-normalizes the outputs after attention to maintain stable learning and consistent feature scaling.
-
-- **Dense layer with 128 units and GELU activation**
-  - Further processes the combined features from attention, allowing the model to learn higher-level structural patterns.
-
-- **Final Dense layer that predicts 3D coordinates (x, y, z) for each amino acid residue**
-  - Outputs the final (x, y, z) position prediction for every amino acid in the sequence.
-  - 
-This architecture captures basic spatial relationships between amino acids using attention, similar in spirit to AlphaFold's mechanism.
+  - Multi-Head Attention layer (8 heads, key dimension = 32)
+    - Let's the model learn different patterns in parallel, allowing it to learn more complex relationships. 
+  - Layer Normalization layer
+    - Normalizes the outputs
+  - Dense layer with 128 units and GELU activation
+  - Final Dense layer that predicts 3D coordinates (x, y, z) for each amino acid residue
 
 ### 3. Training
 - **Loss Function**: Mean Squared Error (MSE).
@@ -79,6 +64,7 @@ This architecture captures basic spatial relationships between amino acids using
 ### 4. Evaluation
 - **Metric**:  
   - Calculates **Root Mean Square Deviation (RMSD)** between the predicted and true Cα trace.
+  - RMSD is commonly used in protein structure prediction, as it measures the difference in the prediction and the actual based on Euclidean distance. 
 - **Visualization**:  
   - Generates a 3D plot comparing the predicted trace against the actual structure, allowing visual inspection of prediction accuracy.
 
@@ -87,8 +73,7 @@ This architecture captures basic spatial relationships between amino acids using
 In the first iteration, for demonstration purposes, the model was trained on just one sequence-structure pair. This resulted in a RMSD value of 11.209 Å. This was unoptimal, as an optimal RMSD value is below 3 Å.
 ![image](https://github.com/user-attachments/assets/5585af08-42c3-4e2a-8a61-63525d9b529a)
 
-### With Training
-
+### Increased Training Data
 
 
 ## Future Steps
