@@ -22,23 +22,6 @@ def preprocess_fasta(fasta):
 
     return tf.one_hot(amino_acids, 20)
 
-def create_minifold_model():
-    inputs = layers.Input(shape=(None, 20))
-
-    # Project one-hot sequence into higher-dimensional space
-    x = layers.Dense(128, activation='gelu')(inputs)  # GELU is a smoother gradient than RELU (better for complex patterns) but is more computationally expensive. Since the model is pretty small, this doesn't have too much or a downside, which is why i chose to include this
-    x = layers.LayerNormalization()(x)
-
-    # Multi-head attention
-    attention_output = layers.MultiHeadAttention(num_heads=8, key_dim=32)(x, x)  # more heads
-    x = layers.LayerNormalization()(x)
-
-    x = layers.Dense(128, activation='gelu')(x)
-
-    outputs = layers.Dense(3)(x)  # Predict (x, y, z)
-
-    return models.Model(inputs, outputs)
-
 def fetch_pdb_content(pdb_id):
     pdb_id = pdb_id.lower()
     url = f"https://files.rcsb.org/download/{pdb_id}.pdb"
@@ -60,6 +43,45 @@ def extract_ca_coordinates(pdb_2d):
         if line[2] == "CA":
             coords.append([float(line[6]), float(line[7]), float(line[8])])
     return coords
+
+def fetch_sequence(pdb_id):
+    pdb_id = pdb_id.upper()
+    url = f"https://www.rcsb.org/fasta/entry/{pdb_id}"
+
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        fasta_text = response.text
+
+        lines = fasta_text.strip().split('\n')
+        sequence = ''.join(line.strip() for line in lines if not line.startswith('>'))
+        return sequence
+
+    except requests.exceptions.RequestException as e:
+        print(f"Failed to fetch {pdb_id}: {e}")
+        return None
+
+
+###################################################################################
+
+def create_minifold_model():
+    inputs = layers.Input(shape=(None, 20))
+
+    # Project one-hot sequence into higher-dimensional space
+    x = layers.Dense(128, activation='gelu')(inputs)  # GELU is a smoother gradient than RELU (better for complex patterns) but is more computationally expensive. Since the model is pretty small, this doesn't have too much or a downside, which is why i chose to include this
+    x = layers.LayerNormalization()(x)
+
+    # Multi-head attention
+    attention_output = layers.MultiHeadAttention(num_heads=8, key_dim=32)(x, x)  # more heads
+    x = layers.LayerNormalization()(x)
+
+    x = layers.Dense(128, activation='gelu')(x)
+
+    outputs = layers.Dense(3)(x)  # Predict (x, y, z)
+
+    return models.Model(inputs, outputs)
+
+###################################################################################
 
 def calculate_rmsd(pred, true):
     pred, true = np.array(pred), np.array(true)
@@ -83,30 +105,36 @@ def plot_comparison(pred, true):
     ax.set_title("Predicted vs True Cα Trace")
     plt.show()
 
-###############################################################
+###################################################################################
 
-# Example
-fasta = "VLSEGEWQLVLHVWAKVEADVAGHGQDILIRLFKSHPETLEKFDRFKHLKTEAEMKASEDLKKHGVTVLTALGAILKKKGHHEAELKPLAQSHATKHKIPIKYLEFISEAIIHVLHSRHPGDFGADAQGAMNKALELFRKDIAAKYKELGYQG"
+sequences = ["3ZOW"]
 
-# Example matching PDB (Cytochrome C)
-pdb_id = "3ZOW"
-pdb_txt = fetch_pdb_content(pdb_id)
-pdb_arr = pdb_to_arr(pdb_txt)
-ca_coords = extract_ca_coordinates(pdb_arr)
+train_data = []
 
-X = preprocess_fasta(fasta).numpy()
-y = np.array(ca_coords)
+for pdb_id in sequences:
+  fasta_sequence = fetch_sequence(pdb_id)
+  pdb_text = fetch_pdb_content(pdb_id)
+  if fasta_sequence is None or pdb_text is None:
+    continue
+  x = preprocess_fasta(fasta_sequence).numpy()
+  pdb_arr = pdb_to_arr(pdb_text)
+  y = np.array(extract_ca_coordinates(pdb_arr))
 
-min_len = min(X.shape[0], y.shape[0])
-X, y = X[:min_len], y[:min_len]
-X = X[None, ...]
-y = y[None, ...]
+  min_len = min(x.shape[0], y.shape[0])
+  x, y = x[:min_len], y[:min_len]
+  train_data.append((x, y))
+
+inputs = [np.expand_dims(x, axis=0) for x, y in train_data]
+targets = [np.expand_dims(y, axis=0) for x, y in train_data]
 
 model = create_minifold_model()
 model.compile(optimizer='adam', loss='mse')
-model.fit(X, y, epochs=200, verbose=2)
+model.fit(inputs, targets, epochs=200)
 
-X_test = tf.expand_dims(preprocess_fasta(fasta), axis=0)
+fasta_sequence: ""
+
+X_test = tf.expand_dims(preprocess_fasta(fasta_sequence), axis=0)
+ca_coords = y
 
 predicted_coords = model.predict(X_test)[0]
 
