@@ -131,14 +131,19 @@ model = create_minifold_model()
 model.compile(optimizer='adam', loss='mse')
 model.fit(inputs, targets, epochs=200)
 
-fasta_sequence: ""
+###################################################################################
+
+test_pdb_id = "3ZOW"
+fasta_sequence = fetch_sequence(test_pdb_id)
+pdb_text = fetch_pdb_content(test_pdb_id)
 
 X_test = tf.expand_dims(preprocess_fasta(fasta_sequence), axis=0)
-ca_coords = y
+pdb_arr = pdb_to_arr(pdb_text)
+ca_coords = np.array(extract_ca_coordinates(pdb_arr))
 
 predicted_coords = model.predict(X_test)[0]
 
 rmsd = calculate_rmsd(predicted_coords, ca_coords)
-print(f"RMSD between prediction and true structure: {rmsd:.3f} Å")
+print(f"RMSD between prediction and true structure for {test_pdb_id}: {rmsd:.3f} Å")
 
 plot_comparison(predicted_coords, ca_coords)
