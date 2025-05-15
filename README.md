@@ -1,9 +1,3 @@
-TODO:
-1. add in-depth description of everything the code does
-2. add more training data
-3. test on different protein (not cytochrome c), more like something we did in class like a crispr protein
-
-
 ## **Protein Scructure Prediction w/ Computational Model**
 With the rise in neural networks being used in predicting how proteins will fold, this model attempts to recreate top models such as AlphaFold with lower complexity. 
 
@@ -29,7 +23,11 @@ Although AlphaFold2 is very complex, my project focuses on capturing the basic i
 3. Predicting a 3D Cα trace.
 
 ## Development
-### 1. Preprocessing
+### 1. Data Retrieval
+- Retrieve the first 300 PDB IDs that have the tag "Homo Sapiens"
+- IDs that return an error are skipped over, most likely due to incompatibility or returning a blank value for the sequence
+
+### 2. Preprocessing
 - **FASTA Sequence Preprocessing**:  
   - Converts an amino acid sequence into a one-hot encoded tensor (20 amino acids → 20-dimensional vectors).
 - **PDB File Retrieval**:  
@@ -38,7 +36,7 @@ Although AlphaFold2 is very complex, my project focuses on capturing the basic i
   - Parses the PDB file and extracts the x, y, z coordinates of **Cα atoms** (representing the protein backbone).
 I chose to focus on alpha-carbon atoms due to the nature of the model. Since the model is a scaled down version lacking a lot of the things AlphaFold has, I chose to only focus on the protein backbone. Alpha-carbons are the central point in the backbone of every amino acid, so I only extracted their positions. 
 
-### 2. Model Architecture
+### 3. Model Architecture
 - **Input**:  
   - Variable-length one-hot encoded sequence.
   - Each sequences has a different length, so the program needs to adapt
@@ -55,13 +53,13 @@ I chose to focus on alpha-carbon atoms due to the nature of the model. Since the
   - Dense layer with 128 units and GELU activation
   - Final Dense layer that predicts 3D coordinates (x, y, z) for each amino acid residue
 
-### 3. Training
+### 4. Training
 - **Loss Function**: Mean Squared Error (MSE).
 - **Training Setup**:
   - Trained on multiple sequence-structure pairs. 
   - 200 epochs of training to fit predicted Cα coordinates to true coordinates.
 
-### 4. Evaluation
+### 5. Evaluation
 - **Metric**:  
   - Calculates **Root Mean Square Deviation (RMSD)** between the predicted and true Cα trace.
   - RMSD is commonly used in protein structure prediction, as it measures the difference in the prediction and the actual based on Euclidean distance. 
@@ -69,17 +67,24 @@ I chose to focus on alpha-carbon atoms due to the nature of the model. Since the
   - Generates a 3D plot comparing the predicted trace against the actual structure, allowing visual inspection of prediction accuracy.
 
 ## Results
-### Minimal Training (for demonstration)
-In the first iteration, for demonstration purposes, the model was trained on just one sequence-structure pair. This resulted in a RMSD value of 11.209 Å. This was unoptimal, as an optimal RMSD value is below 3 Å.
-![image](https://github.com/user-attachments/assets/5585af08-42c3-4e2a-8a61-63525d9b529a)
+With a 2:1 train/validation setup, I got an average RMSD score of 26.29953406627689 Å
 
-After improving the model architecture and keeping the training data and evaluation the same, I got an RMSD of 
-![image](https://github.com/user-attachments/assets/41926027-8559-44e8-9f86-f1db47236eda)
+Below is a graph of one of the better generations, with a score of 9.252 Å
+![image](https://github.com/user-attachments/assets/81c9e9b5-bd45-4aa3-b037-096eb4920eac)
 
-### Increased Training Data
-
+Obviously, the results are not ideal. This is to be expected. 
 
 ## Future Steps
-
-
-## Resources
+There are several areas for improvement in future work. The results with the given work have a lot of room for improvement. While the general structure is there, a lot needs to be added on to properly imitate AlphaFold and accurately predict proteins structures. 
+- Expand Training Data:
+  - Increase the size and diversity of the dataset by including more PDB entries from a variety of organisms, not just Homo sapiens.
+  - Include longer and more structurally complex proteins to better challenge and train the model.
+Model Improvements:
+- Implement a recycling mechanism, where the model's predictions are fed back into itself to refine outputs, mimicking AlphaFold’s iterative approach.
+- Explore transformer-based architectures beyond simple multi-head attention for more powerful spatial learning.
+Predict More than Cα:
+- Expand the model to predict side chain atoms or full-atom coordinates, instead of just the alpha-carbon trace, for more realistic structure predictions.
+Advanced Loss Functions:
+- Experiment with additional loss functions, such as distance matrix loss, to guide the model towards better global folding.
+Benchmarking:
+- Compare the model’s performance against standard datasets used in protein structure prediction (e.g., CASP datasets).
