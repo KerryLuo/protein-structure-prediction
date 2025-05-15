@@ -1,7 +1,12 @@
+# !pip install rcsbsearchapi
+
 import tensorflow as tf
 from tensorflow.keras import layers, models
 import numpy as np
 import pandas as pd
+import requests
+from os import write
+from rcsbsearchapi import AttributeQuery
 import requests
 
 def preprocess_fasta(fasta):
@@ -107,22 +112,32 @@ def plot_comparison(pred, true):
 
 ###################################################################################
 
-sequences = ["3ZOW"]
+# repurposed code from j-term
+# Construct a query searching for structures from humans
+query = AttributeQuery(
+    attribute="rcsb_entity_source_organism.scientific_name",
+    operator="exact_match",
+    value="Homo sapiens"
+)
+
+# Get the first 1000 results
+sequences = list(query())[0:1000]
+print(sequences[0:10])
 
 train_data = []
 
 for pdb_id in sequences:
-  fasta_sequence = fetch_sequence(pdb_id)
-  pdb_text = fetch_pdb_content(pdb_id)
-  if fasta_sequence is None or pdb_text is None:
-    continue
-  x = preprocess_fasta(fasta_sequence).numpy()
-  pdb_arr = pdb_to_arr(pdb_text)
-  y = np.array(extract_ca_coordinates(pdb_arr))
+    fasta_sequence = fetch_sequence(pdb_id)
+    pdb_text = fetch_pdb_content(pdb_id)
+    if fasta_sequence is None or pdb_text is None:
+        continue
+    x = preprocess_fasta(fasta_sequence).numpy()
+    pdb_arr = pdb_to_arr(pdb_text)
+    y = np.array(extract_ca_coordinates(pdb_arr))
 
-  min_len = min(x.shape[0], y.shape[0])
-  x, y = x[:min_len], y[:min_len]
-  train_data.append((x, y))
+    min_len = min(x.shape[0], y.shape[0])
+    x, y = x[:min_len], y[:min_len]
+    train_data.append((x, y))
 
 inputs = [np.expand_dims(x, axis=0) for x, y in train_data]
 targets = [np.expand_dims(y, axis=0) for x, y in train_data]
