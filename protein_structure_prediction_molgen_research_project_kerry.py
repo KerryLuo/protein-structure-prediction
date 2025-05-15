@@ -24,16 +24,6 @@ def preprocess_fasta(fasta):
 
 def create_minifold_model():
     inputs = layers.Input(shape=(None, 20))
-    x = layers.Dense(64, activation='relu')(inputs)
-    x = layers.LayerNormalization()(x)
-    x = layers.MultiHeadAttention(num_heads=4, key_dim=16)(x, x)
-    x = layers.LayerNormalization()(x)
-    x = layers.Dense(128, activation='relu')(x)
-    outputs = layers.Dense(3)(x)
-    return models.Model(inputs, outputs)
-
-def create_minifold_model():
-    inputs = layers.Input(shape=(None, 20))
 
     # Project one-hot sequence into higher-dimensional space
     x = layers.Dense(128, activation='gelu')(inputs)  # GELU is a smoother gradient than RELU (better for complex patterns) but is more computationally expensive. Since the model is pretty small, this doesn't have too much or a downside, which is why i chose to include this
