@@ -43,13 +43,31 @@ I chose to focus on alpha-carbon atoms due to the nature of the model. Since the
   - Variable-length one-hot encoded sequence.
   - Each sequences has a different length, so the program needs to adapt
 - **Layers**:
-  - Dense layer with 64 units and ReLU activation.
+  - Dense layer with 128 units and GELU activation.
+    - Projects the one-hot encoded sequence into a higher-dimensional feature space.
+    - GELU activation provides a smoother, more natural gradient flow than ReLU, helping the model learn complex patterns.
   - Layer Normalization layer.
+    - Normalizes features across each input to stabilize and speed up training.
   - Multi-Head Attention layer (4 heads, key dimension = 16).
+    - Allows each amino acid residue to attend to others, capturing complex relationships (even between distant residues).
   - Another Layer Normalization layer.
   - Dense layer with 128 units and ReLU activation.
   - Final Dense layer that predicts 3D coordinates (x, y, z) for each amino acid residue.
 
+
+- **Multi-Head Attention layer (8 heads, key dimension = 32)**
+  - Allows each amino acid residue to attend to others, capturing complex relationships (even between distant residues).
+  - More heads (8 vs 4) and higher key dimension (32 vs 16) help the model learn richer and more diverse interactions.
+
+- **Layer Normalization layer**
+  - Re-normalizes the outputs after attention to maintain stable learning and consistent feature scaling.
+
+- **Dense layer with 128 units and GELU activation**
+  - Further processes the combined features from attention, allowing the model to learn higher-level structural patterns.
+
+- **Final Dense layer that predicts 3D coordinates (x, y, z) for each amino acid residue**
+  - Outputs the final (x, y, z) position prediction for every amino acid in the sequence.
+  - 
 This architecture captures basic spatial relationships between amino acids using attention, similar in spirit to AlphaFold's mechanism.
 
 ### 3. Training
